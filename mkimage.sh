@@ -1,23 +1,20 @@
 #!/bin/bash
 
-# pull repo to enuse we have up2date code
-git pull
-
 function print_usage {
 	echo >&2
 
 	echo >&2 "usage: $0 \$image \$version \$justTar"
 
 	echo >&2
-	echo >&2 "example: $0 sark/naas-linux 0.1 # builds sark/naas-linux image version 0.1."
-	echo >&2 "example: $0 sark/naas-linux 0.1 true # builds naas-linux-fs.tar.bz2"
+	echo >&2 "example: $0 sark/cloudix 0.1 # builds sark/naas-linux image version 0.1."
+	echo >&2 "example: $0 sark/cloudix 0.1 true # builds cloudix-linux-fs.tar.bz2"
 }
 
 if [ -z "$1" ] ; then
 	print_usage
 	echo "Error, give image name as first argument!"
 	exit
-fi 
+fi
 
 if [ -z "$2" ] ; then
 	print_usage
@@ -34,7 +31,7 @@ fi
 name=$1
 version=$2
 workspace=$(pwd)/workspace
-tarfile="naas-linux-fs.tar.bz2"
+tarfile="cloudix-linux-fs.tar.bz2"
 include=""
 
 if [ -d $workspace ] ; then
@@ -119,10 +116,10 @@ EOF
 sudo rm -fv "$target"/etc/yum.repos.d/amzn*
 
 # add custom yum mirrors, AWS dosn't allow access from outside there own network
-sudo bash -c "cat > ${target}/etc/yum.repos.d/naas-main.repo <<EOF
-[naas-main]
-name=naas-main-Base
-baseurl=http://rpm.naas.io/main/
+sudo bash -c "cat > ${target}/etc/yum.repos.d/cloudix-main.repo <<EOF
+[cloudix-main]
+name=cloudix-main-Base
+baseurl=http://rpm.cloudix-linux.com/main/
 enabled=1
 gpgcheck=0
 mirror_expire=300
@@ -133,11 +130,25 @@ retries=5
 timeout=10
 EOF"
 
-sudo bash -c "cat > ${target}/etc/yum.repos.d/naas-updates.repo <<EOF
-[naas-updates]
-name=naas-updates-Base
-baseurl=http://rpm.naas.io/updates/
+sudo bash -c "cat > ${target}/etc/yum.repos.d/cloudix-updates.repo <<EOF
+[cloudix-updates]
+name=cloudix-updates-Base
+baseurl=http://rpm.cloudix-linux.com/updates/
 enabled=1
+gpgcheck=0
+mirror_expire=300
+metadata_expire=300
+priority=10
+fastestmirror_enabled=0
+retries=5
+timeout=10
+EOF"
+
+sudo bash -c "cat > ${target}/etc/yum.repos.d/cloudix-extra.repo <<EOF
+[cloudix-extra]
+name=cloudix-extra
+baseurl=http://rpm.cloudix-linux.com/extra/
+enabled=0
 gpgcheck=0
 mirror_expire=300
 metadata_expire=300
@@ -155,6 +166,14 @@ if [ -f /etc/yum.repos.d/epel-testing.repo ] ; then
 	sudo cp -a /etc/yum.repos.d/epel-testing.repo "$target"/etc/yum.repos.d/epel-testing.repo
 fi
 
+# make bash nice
+mkdir -pv "$target"/etc/profile.d/
+sudo bash -c "cat > ${target}/etc/profile.d/ps1.sh <<EOF
+export PS1='\[\033[02;32m\]\u@\H:\[\033[02;34m\]\w\$\[\033[00m\] '
+EOF
+"
+sudo chmod +x "${target}"/etc/profile.d/ps1.sh
+
 # clean up
 sudo rm -rf "$target"/usr/{{lib,share}/locale,{lib,lib64}/gconv,bin/localedef,sbin/build-locale-archive}
 sudo rm -rf "$target"/usr/share/{man,doc,info,gnome/help}
@@ -166,7 +185,7 @@ sudo rm -rf "$target"/var/cache/ldconfig/*
 sudo rm -fr "$target"/var/lib/yum
 
 if [ "$justTar" ]; then
-	echo "Creating tar for ${name}:${version}, target naas-linux-fs.tar.bz2"
+	echo "Creating tar for ${name}:${version}, target cloudix-linux-fs.tar.bz2"
 	touch "$tarfile"
 	sudo tar --numeric-owner -C "$target" -caf "$tarfile" .
 else
@@ -176,3 +195,4 @@ else
 fi
 
 sudo rm -rf "$target"
+
