@@ -13,7 +13,7 @@ printf "\n"
 if [ -z "checksum_prev" ] ; then
   echo "New $fs_file checksum is $checksum"
 else
-  echo "Previous $fs_file checksum was $checksum"
+  echo "Previous $fs_file checksum was $checksum_prev"
   echo "New $fs_file checksum is $checksum"
 fi
 exit 0
