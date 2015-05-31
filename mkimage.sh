@@ -130,6 +130,20 @@ retries=5
 timeout=10
 EOF"
 
+sudo bash -c "cat > ${target}/etc/yum.repos.d/cloudix-master.repo <<EOF
+[cloudix-master]
+name=cloudix-master-Base
+baseurl=http://rpm.cloudix-linux.com/master/
+enabled=1
+gpgcheck=0
+mirror_expire=300
+metadata_expire=300
+priority=1
+fastestmirror_enabled=0
+retries=5
+timeout=10
+EOF"
+
 sudo bash -c "cat > ${target}/etc/yum.repos.d/cloudix-updates.repo <<EOF
 [cloudix-updates]
 name=cloudix-updates-Base
@@ -195,4 +209,3 @@ else
 fi
 
 sudo rm -rf "$target"
-
