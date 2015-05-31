@@ -77,21 +77,24 @@ fi
 
 # install packages
 sudo yum --disablerepo='*' \
-		--enablerepo=naas-main \
-		--enablerepo=naas-updates \
+		--enablerepo=cloudix-master \
+		--enablerepo=cloudix-main \
+		--enablerepo=cloudix-updates \
 		--installroot="$target" \
 		--setopt=tsflags=nodocs \
-    	--setopt=group_package_types=mandatory -y \
+    --setopt=group_package_types=mandatory -y \
     	groupinstall Base
 
 # install includes
 if [ ! -z "$include" ] ; then
 	sudo yum --disablerepo='*' \
-			--enablerepo=naas-main \
-			--enablerepo=naas-updates \
-			--installroot="$target" \
-			--setopt=tsflags=nodocs \
-			-y install "$include"
+		--enablerepo=cloudix-master \
+		--enablerepo=cloudix-main \
+		--enablerepo=cloudix-updates \
+		--enablerepo=cloudix-extra \
+		--installroot="$target" \
+		--setopt=tsflags=nodocs \
+		-y install "$include"
 fi
 
 # clean up yum
