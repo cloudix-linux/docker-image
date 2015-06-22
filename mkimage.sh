@@ -6,8 +6,8 @@ function print_usage {
 	echo >&2 "usage: $0 \$image \$version \$justTar"
 
 	echo >&2
-	echo >&2 "example: $0 sark/cloudix 0.1 # builds sark/naas-linux image version 0.1."
-	echo >&2 "example: $0 sark/cloudix 0.1 true # builds cloudix-linux-fs.tar.bz2"
+	echo >&2 "example: $0 cloudix-dev 0.1 # builds image cloudix-dev version 0.1, not pushing to dockerhub."
+	echo >&2 "example: $0 cloudix-dev 0.1 true # builds cloudix-linux-fs.tar.bz2"
 }
 
 if [ -z "$1" ] ; then
