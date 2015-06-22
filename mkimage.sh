@@ -201,6 +201,8 @@ else
 	echo "Creating docker image ${name}:${version}"
 	sudo tar --numeric-owner -c -C "$target" . | sudo docker import - $name:$version
 	sudo docker run -i -t --rm $name:$version echo success
+	echo "Done! Run new image with:"
+	echo "# sudo docker run -i -t --rm $name:$version "
 fi
 
 sudo rm -rf "$target"
