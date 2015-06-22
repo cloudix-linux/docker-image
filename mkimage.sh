@@ -32,7 +32,7 @@ name=$1
 version=$2
 workspace=$(pwd)/workspace
 tarfile="cloudix-linux-fs.tar.bz2"
-include=""
+include="epel-release"
 
 if [ -d $workspace ] ; then
 	echo "workspace/ directory exists, will do a clean up now!"
@@ -72,7 +72,7 @@ sudo mknod -m 666 "$target"/dev/zero c 1 5
 # copy custom yum vars
 if [ -d /etc/yum/vars ]; then
 	mkdir -p -m 755 "$target"/etc/yum
-	cp -a /etc/yum/vars "$target"/etc/yum/
+	#cp -a /etc/yum/vars "$target"/etc/yum/
 fi
 
 # install packages
@@ -101,12 +101,12 @@ fi
 sudo yum --installroot="$target" -y \
 		clean all
 
-## inject configuration
-# networking (no need when we build container)
-#sudo cat > "$target"/etc/sysconfig/network <<EOF
-#NETWORKING=yes
-#HOSTNAME=localhost.localdomain
-#EOF
+# fix for EPEL, we don't have fastest-mirror plugin.
+sed -i '/s/#baseurl/baseurl/g' ${target}/etc/yum.repos.d/epel.repo
+sed -i '/s/mirrorlist/#mirrorlist/g' ${target}/etc/yum.repos.d/epel.repo
+sed -i '/s/#baseurl/baseurl/g' ${target}/etc/yum.repos.d/epel-testing.repo
+sed -i '/s/mirrorlist/#mirrorlist/g' ${target}/etc/yum.repos.d/epel-testing.repo
+
 
 # make sure /etc/resolv.conf has something useful in it
 sudo bash -c 'cat > "$target"/etc/resolv.conf <<EOF
@@ -174,14 +174,6 @@ fastestmirror_enabled=0
 retries=5
 timeout=10
 EOF"
-
-# copy epel mirrors, same configuration as Amazon Linux AMI
-if [ -f /etc/yum.repos.d/epel.repo ] ; then
-	sudo cp -a /etc/yum.repos.d/epel.repo "$target"/etc/yum.repos.d/epel.repo
-fi
-if [ -f /etc/yum.repos.d/epel-testing.repo ] ; then
-	sudo cp -a /etc/yum.repos.d/epel-testing.repo "$target"/etc/yum.repos.d/epel-testing.repo
-fi
 
 # make bash nice
 mkdir -pv "$target"/etc/profile.d/
