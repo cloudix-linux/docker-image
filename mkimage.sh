@@ -91,7 +91,6 @@ if [ ! -z "$include" ] ; then
 		--enablerepo=cloudix-master \
 		--enablerepo=cloudix-main \
 		--enablerepo=cloudix-updates \
-		--enablerepo=cloudix-extra \
 		--installroot="$target" \
 		--setopt=tsflags=nodocs \
 		-y install "$include"
@@ -102,10 +101,10 @@ sudo yum --installroot="$target" -y \
 		clean all
 
 # fix for EPEL, we don't have fastest-mirror plugin.
-sed -i '/s/#baseurl/baseurl/g' ${target}/etc/yum.repos.d/epel.repo
-sed -i '/s/mirrorlist/#mirrorlist/g' ${target}/etc/yum.repos.d/epel.repo
-sed -i '/s/#baseurl/baseurl/g' ${target}/etc/yum.repos.d/epel-testing.repo
-sed -i '/s/mirrorlist/#mirrorlist/g' ${target}/etc/yum.repos.d/epel-testing.repo
+sudo sed -i 's|#baseurl|baseurl|g' ${target}/etc/yum.repos.d/epel.repo
+sudo sed -i 's|mirrorlist|#mirrorlist|g' ${target}/etc/yum.repos.d/epel.repo
+sudo sed -i 's|#baseurl|baseurl|g' ${target}/etc/yum.repos.d/epel-testing.repo
+sudo sed -i 's|mirrorlist|#mirrorlist|g' ${target}/etc/yum.repos.d/epel-testing.repo
 
 
 # make sure /etc/resolv.conf has something useful in it
@@ -175,14 +174,6 @@ retries=5
 timeout=10
 EOF"
 
-# make bash nice
-mkdir -pv "$target"/etc/profile.d/
-sudo bash -c "cat > ${target}/etc/profile.d/ps1.sh <<EOF
-export PS1='\[\033[02;32m\]\u@\H:\[\033[02;34m\]\w\$\[\033[00m\] '
-EOF
-"
-sudo chmod +x "${target}"/etc/profile.d/ps1.sh
-
 # clean up
 sudo rm -rf "$target"/usr/{{lib,share}/locale,{lib,lib64}/gconv,bin/localedef,sbin/build-locale-archive}
 sudo rm -rf "$target"/usr/share/{man,doc,info,gnome/help}
@@ -202,7 +193,7 @@ else
 	sudo tar --numeric-owner -c -C "$target" . | sudo docker import - $name:$version
 	sudo docker run -i -t --rm $name:$version echo success
 	echo "Done! Run new image with:"
-	echo "# sudo docker run -i -t --rm $name:$version "
+	echo "# sudo docker run -i -t --rm $name:$version /bin/bash"
 fi
 
 sudo rm -rf "$target"
