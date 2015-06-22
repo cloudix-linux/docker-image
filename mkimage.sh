@@ -174,6 +174,12 @@ retries=5
 timeout=10
 EOF"
 
+## Color Bash Prompt
+# Read more at https://wiki.archlinux.org/index.php/Color_Bash_Prompt
+sudo bash -c "cat > ${target}/root/.bashrc <<EOF
+PS1='\[\e[0;32m\]\u\[\e[m\] \[\e[1;34m\]\w\[\e[m\] \[\e[1;32m\]\$\[\e[m\] \[\e[1;37m\]'
+EOF"
+
 # clean up
 sudo rm -rf "$target"/usr/{{lib,share}/locale,{lib,lib64}/gconv,bin/localedef,sbin/build-locale-archive}
 sudo rm -rf "$target"/usr/share/{man,doc,info,gnome/help}
